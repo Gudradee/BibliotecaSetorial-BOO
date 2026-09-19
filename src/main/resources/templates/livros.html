@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>BOO - Biblioteca Orientada a Objetos</title>    <style>
+    :root {
+        --marrom-escuro: #4A3520;
+        --marrom: #6F4E2E;
+        --marrom-claro: #A67C52;
+        --madeira: #C8A97E;
+        --branco-gelo: #F7F3EC;
+        --bege: #EDE4D6;
+    }
+
+    body {
+        font-family: Georgia, 'Times New Roman', serif;
+        margin: 0;
+        padding: 40px;
+        background-color: var(--branco-gelo);
+        color: var(--marrom-escuro);
+    }
+
+    h1 {
+        border-bottom: 3px solid var(--marrom);
+        padding-bottom: 10px;
+    }
+
+    h2 {
+        color: var(--marrom);
+        margin-top: 35px;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 30px;
+        background-color: #FFFFFF;
+    }
+
+    th, td {
+        border: 1px solid var(--madeira);
+        padding: 10px;
+        text-align: left;
+    }
+
+    th {
+        background-color: var(--marrom);
+        color: var(--branco-gelo);
+        font-weight: normal;
+        letter-spacing: 1px;
+    }
+
+    tr:nth-child(even) td {
+        background-color: var(--bege);
+    }
+
+    form {
+        max-width: 440px;
+        background-color: var(--bege);
+        border: 1px solid var(--madeira);
+        border-radius: 4px;
+        padding: 20px 25px 25px;
+        margin-bottom: 30px;
+    }
+
+    label {
+        display: block;
+        margin-top: 14px;
+        font-size: 14px;
+    }
+
+    input[type=text], input[type=number] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid var(--marrom-claro);
+        border-radius: 3px;
+        background-color: #FFFFFF;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+
+    .erro {
+        border: 2px solid #9B2C2C;
+    }
+
+    .msg-erro {
+        display: block;
+        color: #9B2C2C;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .sucesso {
+        background-color: #E5EDE0;
+        border-left: 5px solid #4F6F3F;
+        color: #2F4A22;
+        padding: 12px 15px;
+    }
+
+    button {
+        margin-top: 20px;
+        padding: 10px 22px;
+        background-color: var(--marrom);
+        color: var(--branco-gelo);
+        border: none;
+        border-radius: 3px;
+        font-family: inherit;
+        font-size: 15px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: var(--marrom-escuro);
+    }
+</style>
+</head>
+<body>
+
+<h1>BOO - Biblioteca Orientada a Objetos</h1>
+
+<p class="sucesso" th:if="${mensagem}" th:text="${mensagem}"></p>
+
+<h2>Cadastrar livro</h2>
+<form th:action="@{/livros/pagina}" th:object="${livro}" method="post">
+    <label>Título</label>
+    <input type="text" th:field="*{titulo}" th:errorclass="erro">
+    <span class="msg-erro" th:if="${#fields.hasErrors('titulo')}" th:errors="*{titulo}"></span>
+
+    <label>Autor</label>
+    <input type="text" th:field="*{autor}" th:errorclass="erro">
+    <span class="msg-erro" th:if="${#fields.hasErrors('autor')}" th:errors="*{autor}"></span>
+
+    <label>ISBN</label>
+    <input type="text" th:field="*{isbn}" th:errorclass="erro">
+    <span class="msg-erro" th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}"></span>
+
+    <label>Ano de publicação</label>
+    <input type="number" th:field="*{anoPublicacao}" th:errorclass="erro">
+    <span class="msg-erro" th:if="${#fields.hasErrors('anoPublicacao')}" th:errors="*{anoPublicacao}"></span>
+
+    <label>
+        <input type="checkbox" th:field="*{disponivel}"> Disponível
+    </label>
+
+    <button type="submit">Cadastrar</button>
+</form>
+
+<h2>Livros cadastrados</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Título</th>
+        <th>Autor</th>
+        <th>ISBN</th>
+        <th>Ano</th>
+        <th>Disponível</th>
+        <th>Empréstimos</th>
+    </tr>
+    <tr th:each="item : ${livros}">
+        <td th:text="${item.id}"></td>
+        <td th:text="${item.titulo}"></td>
+        <td th:text="${item.autor}"></td>
+        <td th:text="${item.isbn}"></td>
+        <td th:text="${item.anoPublicacao}"></td>
+        <td th:text="${item.disponivel} ? 'Sim' : 'Não'"></td>
+        <td th:text="${totalEmprestimos[item.id]}"></td>
+    </tr>
+</table>
+
+<h2>Empréstimos registrados</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Livro</th>
+        <th>Retirado por</th>
+        <th>Retirada</th>
+        <th>Devolução prevista</th>
+        <th>Devolvido</th>
+    </tr>
+    <tr th:each="emprestimo : ${emprestimos}">
+        <td th:text="${emprestimo.id}"></td>
+        <td>
+            <span th:if="${emprestimo.livro != null}" th:text="${emprestimo.livro.titulo}"></span>
+            <span th:if="${emprestimo.livro == null}">sem livro</span>
+        </td>
+        <td th:text="${emprestimo.nomeRetirante}"></td>
+        <td th:text="${#temporals.format(emprestimo.dataRetirada, 'dd/MM/yyyy')}"></td>
+        <td th:text="${#temporals.format(emprestimo.dataPrevistaDevolucao, 'dd/MM/yyyy')}"></td>
+        <td th:text="${emprestimo.devolvido} ? 'Sim' : 'Não'"></td>
+    </tr>
+</table>
+
+</body>
+</html>
