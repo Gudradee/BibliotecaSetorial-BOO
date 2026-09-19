@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Aluno** | Gustavo Andrade |
-| **Matrícula** | _preencher_ |
+| **Matrícula** | 202508703858 |
 | **Domínio** | Biblioteca (Livro → Empréstimos) |
 
 Aplicação Spring Boot 4.1 com API REST, validação, regra de negócio no Service, página Thymeleaf e banco H2 em memória.
